@@ -1,0 +1,564 @@
+from sqlite3 import *
+from tkinter import *
+from win10toast import ToastNotifier
+import datetime
+class t1:
+    def __init__(self, win):
+
+
+        
+        Name1 = Label(win,  text='Name')
+        password1 = Label(win,  text='Password')
+        sign1 = Button(win,  text='Register', command = self.register)
+        login1 = Button(win,  text='Login', command = self.Login)
+
+       
+        self.t1=Entry(bd=6)
+        self.t2=Entry(bd=6, show="*")
+        
+
+        Name1.place(x=258, y=340)
+        self.t1.place(x=300, y=340)
+        password1.place(x=240, y=375)
+        self.t2.place(x=300, y=375)
+
+
+        
+        login1.place(x=394, y=410)
+        sign1.place(x=300, y=410)
+
+
+
+
+
+
+        
+        
+    def Login(self):
+        ulogin=str(self.t1.get())
+        upassword=str(self.t2.get())
+
+        conn = connect("med.db")
+        c = conn.cursor()
+        try:
+            c.execute("SELECT password FROM med_details WHERE username = (?)", (ulogin,))
+            check = c.fetchone()
+        except:
+            check = c.fetchone()
+            cre = Label(window, text = "Please register an account", fg="red")
+            cre.place(x=295, y=280)
+        if check == None:
+            fail1 = Label(window,  text='Username not found', fg="red")
+            fail1.place(x=310, y=300)
+            
+        else:    
+            check = check[0]
+            
+
+            conn.close()
+
+            if upassword == check:
+                
+                self.mainpage()
+
+            else:
+                fail2 = Label(window,  text='Login failed try again', fg="red")
+                fail2.place(x=310, y=445)
+
+        
+
+
+
+
+
+
+
+
+
+    def register(self):
+        global window2
+        window2 = Toplevel(window)
+        window2.title("Sign up")
+        window2.geometry("950x720")
+        window.withdraw()
+
+
+
+        name2=Label(window2,  text='Name')
+        name2.place(x=258, y=340)
+
+        
+        password2=Label(window2,  text='Password')
+        password2.place(x=240, y=375)
+
+
+
+        self.t4=Entry(window2, bd=6)
+        self.t4.place(x=300, y=340)
+        
+        self.t5=Entry(window2, bd=6, show="*")
+        self.t5.place(x=300, y=375)
+
+        
+        sign2 = Button(window2, text = 'Sign up', command = self.signup)
+        sign2.place(x=330, y=415)
+
+        return1 = Button(window2, text = 'Return', command = self.sreturn)
+        return1.place(x=1,y=1, width = 100)
+
+
+
+
+
+        
+
+    def sreturn(self):
+        window2.withdraw()
+        window.deiconify()
+
+
+
+
+
+
+
+        
+    def signup(self):
+        conn = connect("med.db")
+        c = conn.cursor()
+        try:
+            c.execute("""
+CREATE TABLE med_details(
+username text,
+password text
+)
+""")
+            c.execute("INSERT INTO med_details VALUES (?,?)",("Back","Door"))
+            conn.commit()
+            conn.close()
+        except:
+            pass
+
+        uname=str(self.t4.get())
+        upass=str(self.t5.get())
+        print(uname, upass)
+
+
+
+        
+        conn = connect("med.db")
+        c = conn.cursor()
+        c.execute("SELECT username FROM med_details WHERE username = (?)", (uname,))
+        check = c.fetchone()
+
+
+
+
+
+        
+        try:
+            if uname in check:
+               exist = Label(window2,  text='Username already exists', fg="red",)
+               exist.place(x=310, y=300)
+
+        except:
+            
+            if (uname == "" or upass == ""):
+                print("please enter a valid username or password")
+                serror = Label(window2,  text='please enter a valid username or password', fg='red')
+                serror.place(x=255,y=440)
+
+            
+            else:
+            
+                c.execute("INSERT INTO med_details VALUES (?,?)",(uname,upass))
+                conn.commit()
+
+                window2.withdraw()
+                window.deiconify()
+                signup1 = Label(window, text = "Sign up complete, please login", fg="red")
+                signup1.place(x=280, y=320)
+
+                try:    
+                    c.execute("""
+CREATE TABLE user_details(
+username text,
+reminder text
+)
+""")
+                except:
+                    pass
+                c.execute("INSERT INTO user_details VALUES (?,?)",(uname," you can write anything you want in here "))
+                conn.commit()
+                conn.close()
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def mainpage(self): ##this is working
+        
+
+        global window3
+        window3 = Toplevel(window)
+        window.title("Login")
+        window3.geometry("950x720")
+        window.withdraw()
+
+        home = Button(window3, text = "Home", height=2, width=20, bg="blue", command = self.home)
+        home.place(x=10, y=150)
+
+        logout = Button(window3, text = "save & logout", height=2, width=20, bg="blue", command = self.logout)
+        logout.place(x=10, y=225)
+
+        help1 = Button(window3, text = "help", height=2, width=20, bg="blue", command = self.help)
+        help1.place(x=10, y=300)
+
+        tip = Button(window3, text = "healthy tips", height=2, width=20, bg="blue", command = self.ht)
+        tip.place(x=10, y=375)
+        
+
+        mob = Button(window3, text = "Reminders", height=2, width=20, bg="blue", command = self.remind)
+        mob.place(x=10, y=525)
+
+        assist = Label(window3, text = "In the box you can add any information you would like reminders for e.g. Medication")
+        assist.configure(font='TkDefaultFont 12')
+        assist.place(x=200,y=110)
+
+        
+        self.mymed = Text(window3, height=32, width=82, bg="blue")
+        self.mymed.configure(font='TkDefaultFont 12')
+        self.mymed.place(x=200, y=130)
+
+        ulogin=str(self.t1.get())
+
+        conn = connect("med.db")
+        c = conn.cursor()
+        c.execute("SELECT reminder FROM user_details WHERE username = (?)", (ulogin,))
+        textw1 = c.fetchone()
+        self.mymed.insert(INSERT, (textw1))
+ 
+        
+
+
+
+
+
+
+        
+
+    def home(self):
+        try:
+            window4.withdraw()
+        except:
+            pass
+        try:
+            window5.withdraw()
+        except:
+            pass
+        try:
+            window6.withdraw()
+        except:
+            pass
+        try:
+            window7.withdraw()
+        except:
+            pass
+        window3.deiconify()
+            
+
+
+
+
+
+        
+    def logout(self):
+
+        ulogin=str(self.t1.get())
+        med=str(self.mymed.get("1.0",END))
+        print(med)
+
+
+        
+        conn = connect("med.db")
+        c = conn.cursor()
+        c.execute("UPDATE user_details SET reminder = (?)"+(med) +"WHERE username = (?)",(ulogin))
+        conn.commit
+        conn.close()
+
+
+
+        
+        try:
+            window3.destroy()
+        except:
+            pass
+        try:
+            window4.destroy()
+        except:
+            pass
+        try:
+            window5.destroy()
+        except:
+            pass
+        try:
+            window6.destroy()
+        except:
+            pass
+        try:
+            window7.withdraw()
+        except:
+            pass
+        window.deiconify()
+
+
+
+
+
+
+
+
+        
+    def help(self):
+ 
+        global window4
+        try:
+            window4.withdraw()
+        except:
+            pass
+        window4 = Toplevel(window)
+        window4.title("Help and assistance")
+        window4.geometry("950x720")
+        try:
+            window3.withdraw()
+        except:
+            pass
+        try:
+            window5.withdraw()
+        except:
+            pass
+        try:
+            window6.withdraw()
+        except:
+            pass
+        try:
+            window7.withdraw()
+        except:
+            pass
+
+        home = Button(window4, text = "Home", height=2, width=20, bg="blue", command = self.home)
+        home.place(x=10, y=150)
+
+        logout = Button(window3, text = "save & logout", height=2, width=20, bg="blue", command = self.logout)
+        logout.place(x=10, y=225)
+
+        help1 = Button(window4, text = "help", height=2, width=20, bg="blue", command = self.help)
+        help1.place(x=10, y=300)
+
+        tip = Button(window4, text = "healthy tips", height=2, width=20, bg="blue", command = self.ht)
+        tip.place(x=10, y=375)
+        
+
+
+        mob = Button(window4, text =  "Reminders", height=2, width=20, bg="blue", command = self.remind)
+        mob.place(x=10, y=525)
+
+        guide = Label(window4, text = "In this page you will find help for common problem that may accure as well as FAQ")
+        guide.place(x=150, y=10)
+        guide.configure(font='TkDefaultFont 14')
+
+        mail = Label(window4, text = "If you have any problems please feel free to Email at\nuzzy78601@Gmail.com")
+        mail.place(x=400, y=130)
+        mail.configure(font='TkDefaultFont 14')
+
+        phone = Label(window4, text = "You can also phone at 07393564892")
+        phone.place(x=400, y=180)
+        phone.configure(font='TkDefaultFont 14')
+
+        
+        
+        
+
+
+    def ht(self):
+
+        global window5
+        try:
+            window5.withdraw()
+        except:
+            pass
+        window5 = Toplevel(window)
+        window5.title("Health Tips")
+        window5.geometry("950x720")
+        try:
+            window3.withdraw()
+        except:
+            pass
+        try:
+            window4.withdraw()
+        except:
+            pass
+        try:
+            window6.withdraw()
+        except:
+            pass
+        try:
+            window7.withdraw()
+        except:
+            pass
+
+        home = Button(window5, text = "Home", height=2, width=20, bg="blue", command = self.home)
+        home.place(x=10, y=150)
+
+        logout = Button(window3, text = "save & logout", height=2, width=20, bg="blue", command = self.logout)
+        logout.place(x=10, y=225)
+
+        help1 = Button(window5, text = "help", height=2, width=20, bg="blue", command = self.help)
+        help1.place(x=10, y=300)
+
+        tip = Button(window5, text = "healthy tips", height=2, width=20, bg="blue", command = self.ht)
+        tip.place(x=10, y=375)
+        
+
+        mob = Button(window5, text = "Reminders", height=2, width=20, bg="blue", command = self.remind)
+        mob.place(x=10, y=525)
+
+        ht1 = Label(window5, text = "In this page you will find Health Tips that you should use to have a better and a healthier life")
+        ht1.place(x=100, y=10)
+        ht1.configure(font='TkDefaultFont 14')
+
+        ht2 = Label(window5, text = "•You should make sure that you spend at least 30 mins a day\ndoing some excersies as to stay healthy")
+        ht2.place(x=400, y=130)
+        ht2.configure(font='TkDefaultFont 14')
+
+        ht3 = Label(window5, text = "•You should eat at least 7 different coloured fruits everyday to\nkeep healthy")
+        ht3.place(x=400, y=190)
+        ht3.configure(font='TkDefaultFont 14')
+
+        ht4 = Label(window5, text = "•You should never share medication with other people as\ndifferent people have different perscriptions")
+        ht4.place(x=400, y=240)
+        ht4.configure(font='TkDefaultFont 14')
+
+        ht5 = Label(window5, text = "•If you do consume medication that isn't yours you should\nimmediately seek medical attention")
+        ht5.place(x=400, y=300)
+        ht5.configure(font='TkDefaultFont 14')
+
+        ht6 = Label(window5, text = "•You should eat more oily fish like salmon, trout and mackerel\nas well as regualer fish like haddock, cod and tuna")
+        ht6.place(x=400, y=350)
+        ht6.configure(font='TkDefaultFont 14')
+
+        ht7 = Label(window5, text = "•You should reduce and watch how much fat, sugar and salt you\nintake as a lot of store bought foods contain a lot of these")
+        ht7.place(x=400, y=400)
+        ht7.configure(font='TkDefaultFont 14')
+
+        ht8 = Label(window5, text = "•If you smoke or drink alcohol you should attempt to stop if \n possible or cut down on how much you smoke and drink this\nalso goes for fizz drinks")
+        ht8.place(x=400, y=450)
+        ht8.configure(font='TkDefaultFont 14')
+
+        ht9 = Label(window5, text = "•You should make sure you drink a lot of water. You should never\nfeel thirtsy as long as your drinking at least 8 glasses of water\nconsistenly throughout the day")
+        ht9.place(x=400, y=500)
+        ht9.configure(font='TkDefaultFont 14')
+
+        ht10 = Label(window5, text ="•Stop snacking throught the day and have set meal times and\nhealthy meal plans as this will assist you in keeping a healthy\nweight")
+        ht10.place(x=400, y=550)
+        ht10.configure(font='TkDefaultFont 14')
+
+        ht11 = Label(window5, text="•Get a good sleep schedual as a lot of studies suggest that\ninadiquite sleep can casue a lot of bad effects to your body")
+        ht11.place(x=400, y=625)
+        ht11.configure(font='TkDefaultFont 14')
+
+
+
+
+
+        
+
+    
+
+
+
+
+
+
+
+    def remind(self):
+        global window7
+        try:
+            window7.withdraw()
+        except:
+            pass
+        window7 = Toplevel(window)
+        window7.title("Sign up")
+        window7.geometry("950x720")
+        try:
+            window3.withdraw()
+        except:
+            pass
+        try:
+            window4.withdraw()
+        except:
+            pass
+        try:
+            window5.withdraw()
+        except:
+            pass
+        try:
+            window6.withdraw()
+        except:
+            pass
+        home = Button(window7, text = "Home", height=2, width=20, bg="blue", command = self.home)
+        home.place(x=10, y=150)
+
+        logout = Button(window3, text = "save & logout", height=2, width=20, bg="blue", command = self.logout)
+        logout.place(x=10, y=225)
+
+        help1 = Button(window7, text = "help", height=2, width=20, bg="blue", command = self.help)
+        help1.place(x=10, y=300)
+
+        tip = Button(window7, text = "healthy tips", height=2, width=20, bg="blue", command = self.ht)
+        tip.place(x=10, y=375)
+        
+        
+
+        mob = Button(window7, text = "Reminders", height=2, width=20, bg="blue", command = self.remind)
+        mob.place(x=10, y=525)
+
+        self.alarmt = Entry(window7)
+        self.alarmt.configure(font='TkDefaultFont 12')
+        self.alarmt.place(x=400, y=130)
+
+        alarmset = Button(window7, text = "set timer", height=1, width=8, bg="blue")
+        alarmset.place(x=600, y=130)
+        
+
+
+
+
+         
+            
+
+        
+
+        
+            
+        
+        
+        
+
+window=Tk()
+mywin=t1(window)
+window.title('Medi care')
+window.geometry("950x720")
+window.mainloop()
+
+
+
